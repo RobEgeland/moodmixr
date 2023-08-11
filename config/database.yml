@@ -81,6 +81,7 @@ test:
 #
 production:
   <<: *default
+  url: <%= ENV['DATABASE_URL'] %>
   database: moodmixr_production
   username: moodmixr
   password: <%= ENV["MOODMIXR_DATABASE_PASSWORD"] %>
