@@ -10,13 +10,14 @@ function App() {
   const  REDIRECT_URI = "http://localhost:4000/home"
   const CLIENT_ID_SECRET = "9e15920a28ae4b328f586043e5c12589"
   const [authCode, setAuthCode] = useState("")
+  const credentials = `${CLIENT_ID}:${CLIENT_ID_SECRET}`;
+  const base64Credentials = btoa(credentials);
+  const tokenUrl = 'https://accounts.spotify.com/api/token';
 
 
   useEffect(() => {
     if (authCode) {
-      const tokenUrl = 'https://accounts.spotify.com/api/token';
-      const credentials = `${CLIENT_ID}:${CLIENT_ID_SECRET}`;
-      const base64Credentials = btoa(credentials);
+      
       const data = {
         grant_type: "authorization_code",
         code: authCode,
@@ -45,6 +46,37 @@ function App() {
     }
     
   }, [authCode])
+
+  function refreshToken() {
+    const refreshData = {
+      grant_type: "refresh_token",
+      refresh_token: window.localStorage.getItem("refresh_token")
+    }
+
+    const headers = {
+      "Authorization": `Basic ${base64Credentials}`,
+      "Content-Type": 'application/x-www-form-urlencoded'
+    }
+
+    const options = {
+      method: 'POST',
+      headers,
+      body: new URLSearchParams(refreshData).toString()
+    }
+    
+    fetch(tokenUrl, options)
+    .then(res => res.json())
+    .then(data => {
+      window.localStorage.setItem("access_token", data.access_token)
+      window.localStorage.setItem("refresh_token", data.refresh_token)
+    })
+    .catch(error => {
+      // Handle errors
+      console.error('Error:', error);
+    });
+  }
+
+  setTimeout(refreshToken, 3600000);
 
 
  
