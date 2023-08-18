@@ -6,9 +6,9 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route} from "react-router-dom";
 
 function App() {
-  const CLIENT_ID = "b239bb1210ab4c7cb8ecee3aa25fe58a"
+  const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID
+  const CLIENT_ID_SECRET = process.env.SPOTIFY_CLIENT_ID_SECRET
   const  REDIRECT_URI = "http://localhost:4000/home"
-  const CLIENT_ID_SECRET = "9e15920a28ae4b328f586043e5c12589"
   const [authCode, setAuthCode] = useState("")
   const credentials = `${CLIENT_ID}:${CLIENT_ID_SECRET}`;
   const base64Credentials = btoa(credentials);
