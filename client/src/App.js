@@ -9,12 +9,12 @@ function App() {
   const CLIENT_ID = process.env.REACT_APP_SPOTIFY_CLIENT_ID
   const CLIENT_ID_SECRET = process.env.REACT_APP_SPOTIFY_CLIENT_ID_SECRET
   const  REDIRECT_URI = "http://localhost:4000/home"
+  const scope = "streaming user-read-email user-read-private"
   const [authCode, setAuthCode] = useState("")
   const credentials = `${CLIENT_ID}:${CLIENT_ID_SECRET}`;
   const base64Credentials = btoa(credentials);
   const tokenUrl = 'https://accounts.spotify.com/api/token';
   const [loggedIn, setLoggedIn] = useState(false)
-  console.log(process.env.REACT_APP_SPOTIFY_CLIENT_ID)
 
   useEffect(() => {
     if (authCode) {
@@ -102,7 +102,7 @@ function App() {
           {window.localStorage.getItem("logged_in") === "true" || loggedIn === true ? <button onClick={handleLogout} className='text-2xl self-end p-5'>Log Out</button> : null}
         </div>
         <Routes>
-          <Route path={"/"} element={<Authorize CLIENT_ID={CLIENT_ID} REDIRECT_URI={REDIRECT_URI}/>}/>
+          <Route path={"/"} element={<Authorize scope={scope} CLIENT_ID={CLIENT_ID} REDIRECT_URI={REDIRECT_URI}/>}/>
           <Route path={"/home"} element={<Home  setAuthCode={setAuthCode} />}/>
         </Routes>
       </div>
