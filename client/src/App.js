@@ -3,7 +3,7 @@ import './App.css';
 import Authorize from './Components/Authorize';
 import Home from './Components/Home';
 import { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route} from "react-router-dom";
 
 function App() {
   const CLIENT_ID = "b239bb1210ab4c7cb8ecee3aa25fe58a"
@@ -13,6 +13,8 @@ function App() {
   const credentials = `${CLIENT_ID}:${CLIENT_ID_SECRET}`;
   const base64Credentials = btoa(credentials);
   const tokenUrl = 'https://accounts.spotify.com/api/token';
+  const [loggedIn, setLoggedIn] = useState(false)
+  
 
 
   useEffect(() => {
@@ -35,14 +37,16 @@ function App() {
       fetch(tokenUrl, options)
       .then(res => res.json())
       .then(data => {
-
         window.localStorage.setItem("access_token", data.access_token)
         window.localStorage.setItem("refresh_token", data.refresh_token)
+        window.localStorage.setItem("logged_in", 'true')
+        setLoggedIn(true)
       })
       .catch(error => {
         // Handle errors
         console.error('Error:', error);
       });
+
     }
     
   }, [authCode])
@@ -76,14 +80,28 @@ function App() {
     });
   }
 
-  setTimeout(refreshToken, 3600000);
+  if(window.localStorage.getItem("logged_in") === "true") {
+    setTimeout(refreshToken, 3600000);
+  }
+
+  function handleLogout() {
+    window.localStorage.setItem("logged_in", 'false')
+    window.localStorage.setItem("access_token", "")
+    window.localStorage.setItem("refresh_token", "")
+    setLoggedIn(false)
+    window.location.href = '/';
+  }
+
 
 
  
   return (
     <BrowserRouter>
       <div className="App">
-        <h1 className='text-center text-4xl font-body mt-5 -z-10'>MoodMixr</h1>
+        <div className='flex justify-between items-center'>
+          <h1 className='text-center text-4xl font-body mt-5 flex-grow'>MoodMixr</h1>
+          {window.localStorage.getItem("logged_in") === "true" || loggedIn === true ? <button onClick={handleLogout} className='text-2xl self-end p-5'>Log Out</button> : null}
+        </div>
         <Routes>
           <Route path={"/"} element={<Authorize CLIENT_ID={CLIENT_ID} REDIRECT_URI={REDIRECT_URI}/>}/>
           <Route path={"/home"} element={<Home  setAuthCode={setAuthCode} />}/>
