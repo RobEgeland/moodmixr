@@ -2,6 +2,7 @@ import React from 'react'
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import WebPlayback from './WebPlayback'
+import Chat from './Chat'
 
 function extractAuthCode(url) {
     const urlSearchParams = new URLSearchParams(url)
@@ -23,6 +24,7 @@ const Home = ({setAuthCode}) => {
 
   return (
     <div>
+      <Chat />
       <WebPlayback />
     </div>
   )

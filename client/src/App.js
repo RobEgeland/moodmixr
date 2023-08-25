@@ -98,7 +98,7 @@ function App() {
     <BrowserRouter>
       <div className="App">
         <div className='flex justify-between items-center'>
-          <h1 className='text-center text-4xl font-body mt-5 flex-grow'>MoodMixr</h1>
+          <h1 className='text-center text-4xl font-body m-5 flex-grow'>MoodMixr</h1>
           {window.localStorage.getItem("logged_in") === "true" || loggedIn === true ? <button onClick={handleLogout} className='text-2xl self-end p-5'>Log Out</button> : null}
         </div>
         <Routes>
