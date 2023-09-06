@@ -15,6 +15,7 @@ function App() {
   const base64Credentials = btoa(credentials);
   const tokenUrl = 'https://accounts.spotify.com/api/token';
   const [loggedIn, setLoggedIn] = useState(false)
+  const [userName, setUserName] = useState()
 
   useEffect(() => {
     if (authCode) {
@@ -36,10 +37,12 @@ function App() {
       fetch(tokenUrl, options)
       .then(res => res.json())
       .then(data => {
+        console.log(data)
         window.localStorage.setItem("access_token", data.access_token)
         window.localStorage.setItem("refresh_token", data.refresh_token)
         window.localStorage.setItem("logged_in", 'true')
         setLoggedIn(true)
+        
       })
       .catch(error => {
         // Handle errors
@@ -49,6 +52,11 @@ function App() {
     }
     
   }, [authCode])
+  useEffect(() => {
+    if(loggedIn === true) {
+      getUserData()
+    }
+  }, [loggedIn])
 
   function refreshToken() {
     const refreshData = {
@@ -91,6 +99,23 @@ function App() {
     window.location.href = '/';
   }
 
+  function getUserData() {
+    console.log(window.localStorage.getItem("access_token"))
+    const headers = {
+      "Authorization": `Bearer ${window.localStorage.getItem("access_token")}`
+    }
+    fetch('https://api.spotify.com/v1/me', {
+      method: 'GET',
+      headers: headers
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log(data)
+      setUserName(data.display_name)
+    })
+      
+  }
+
 
 
  
@@ -103,7 +128,7 @@ function App() {
         </div>
         <Routes>
           <Route path={"/"} element={<Authorize scope={scope} CLIENT_ID={CLIENT_ID} REDIRECT_URI={REDIRECT_URI}/>}/>
-          <Route path={"/home"} element={<Home  setAuthCode={setAuthCode} />}/>
+          <Route path={"/home"} element={<Home userName={userName}  setAuthCode={setAuthCode} />}/>
         </Routes>
       </div>
     </BrowserRouter>

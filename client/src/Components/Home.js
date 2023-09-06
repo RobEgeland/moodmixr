@@ -9,7 +9,7 @@ function extractAuthCode(url) {
     return urlSearchParams.get('code')
 }
 
-const Home = ({setAuthCode}) => {
+const Home = ({setAuthCode, userName}) => {
     const location = useLocation();
 
     useEffect(() => {
@@ -24,7 +24,7 @@ const Home = ({setAuthCode}) => {
 
   return (
     <div>
-      <Chat />
+      <Chat userName={userName} />
       <WebPlayback />
     </div>
   )
