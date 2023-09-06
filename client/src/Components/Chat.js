@@ -8,7 +8,7 @@ const Chat = () => {
   
     return (
 			<div>
-                <div className='h-screen grid grid-cols-4 grid-flow-col gap-4'>
+                <div className='h-[calc(100vh-105px)] grid grid-cols-4 grid-flow-col gap-4'>
                     <div className='col-span-1 row-span-2 bg-gray-400 h-full'>
                         <h1 className='mx-auto'>Multiple Conversations coming soon</h1>
                         {/* <ChatSideBar /> */}
