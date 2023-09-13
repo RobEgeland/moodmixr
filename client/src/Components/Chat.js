@@ -3,20 +3,14 @@ import { MessageList, Input } from "react-chat-elements"
 import "react-chat-elements/dist/main.css"
 import ChatSideBar from './ChatSideBar'
 
-const Chat = ({userName}) => {
+const Chat = ({currentUser}) => {
     const [input, setInput] = useState()
     const [conversation, setConversation] = useState([
         {
             position: "left",
             type: "text",
-            title: "Kursat",
+            title: "ChatGpt",
             text: "Give me a message list example !",
-        },
-        {
-            position: "right",
-            type: "text",
-            title: "Emre",
-            text: "That's all.",
         },
     ])
 
@@ -25,7 +19,7 @@ const Chat = ({userName}) => {
             const convoObject = {
                 position: "right",
                 type: "text",
-                title: userName,
+                title: currentUser.username,
                 text: input,
             }
             setConversation([...conversation, convoObject])

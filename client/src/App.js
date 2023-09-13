@@ -15,7 +15,8 @@ function App() {
   const base64Credentials = btoa(credentials);
   const tokenUrl = 'https://accounts.spotify.com/api/token';
   const [loggedIn, setLoggedIn] = useState(false)
-  const [userName, setUserName] = useState()
+  const [currentUser, setCurrentUser] = useState()
+  const [errors, setErrors] = useState()
 
   useEffect(() => {
     if (authCode) {
@@ -40,8 +41,9 @@ function App() {
         console.log(data)
         window.localStorage.setItem("access_token", data.access_token)
         window.localStorage.setItem("refresh_token", data.refresh_token)
-        window.localStorage.setItem("logged_in", 'true')
-        setLoggedIn(true)
+        // window.localStorage.setItem("logged_in", 'true')
+        // setLoggedIn(true)
+        getUserData()
         
       })
       .catch(error => {
@@ -52,11 +54,22 @@ function App() {
     }
     
   }, [authCode])
+
   useEffect(() => {
-    if(loggedIn === true) {
-      getUserData()
+    fetch("/current-user")
+    .then((r) => {
+      if(r.ok){
+        r.json().then((data) => {
+          setCurrentUser(data)
+          setLoggedIn(true)
+        })
+      }else {
+        r.text().then(error => {
+            setErrors(error)
+        })
     }
-  }, [loggedIn])
+    })
+  },[])
 
   function refreshToken() {
     const refreshData = {
@@ -92,29 +105,76 @@ function App() {
   }
 
   function handleLogout() {
-    window.localStorage.setItem("logged_in", 'false')
     window.localStorage.setItem("access_token", "")
     window.localStorage.setItem("refresh_token", "")
+    fetch("/logout", {method: "DELETE"})
     setLoggedIn(false)
+    setCurrentUser()
     window.location.href = '/';
   }
 
-  function getUserData() {
-    console.log(window.localStorage.getItem("access_token"))
-    const headers = {
-      "Authorization": `Bearer ${window.localStorage.getItem("access_token")}`
-    }
-    fetch('https://api.spotify.com/v1/me', {
-      method: 'GET',
-      headers: headers
-    })
-    .then(res => res.json())
-    .then(data => {
-      console.log(data)
-      setUserName(data.display_name)
-    })
+  async function getUserData() {
+    try {
+      const accessToken = window.localStorage.getItem("access_token");
+      const headers = {
+        "Authorization": `Bearer ${accessToken}`
+      };
       
+      const response = await fetch('https://api.spotify.com/v1/me', {
+        method: 'GET',
+        headers: headers
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        
+        const userInfo = {
+          username: data.display_name,
+          email: data.email,
+          id: parseInt(data.id),
+          country: data.country
+        };
+  
+        await signUserIn(userInfo);
+      } else {
+        const error = await response.json();
+        // Handle errors as needed
+      }
+    } catch (error) {
+      // Handle fetch or other errors
+    }
   }
+  
+  async function signUserIn(userInfo) {
+    try {
+      const headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      };
+      
+      const options = {
+        method: "POST",
+        headers,
+        body: JSON.stringify(userInfo)
+      };
+  
+      const response = await fetch('/login', options);
+  
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+        setCurrentUser(data);
+        setLoggedIn(true);
+      } else {
+        const error = await response.json();
+        setErrors(error.errors);
+      }
+    } catch (error) {
+      // Handle fetch or other errors
+    }
+  }
+  
+
 
 
 
@@ -124,11 +184,11 @@ function App() {
       <div className="App">
         <div className='flex justify-between items-center'>
           <h1 className='text-center text-4xl font-body m-5 flex-grow'>MoodMixr</h1>
-          {window.localStorage.getItem("logged_in") === "true" || loggedIn === true ? <button onClick={handleLogout} className='text-2xl self-end p-5'>Log Out</button> : null}
+          {loggedIn === true ? <button onClick={handleLogout} className='text-2xl self-end p-5'>Log Out</button> : null}
         </div>
         <Routes>
           <Route path={"/"} element={<Authorize scope={scope} CLIENT_ID={CLIENT_ID} REDIRECT_URI={REDIRECT_URI}/>}/>
-          <Route path={"/home"} element={<Home userName={userName}  setAuthCode={setAuthCode} />}/>
+          <Route path={"/home"} element={<Home currentUser={currentUser}  setAuthCode={setAuthCode} />}/>
         </Routes>
       </div>
     </BrowserRouter>
