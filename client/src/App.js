@@ -100,18 +100,24 @@ function App() {
     });
   }
 
-  if(window.localStorage.getItem("logged_in") === "true") {
-    setTimeout(refreshToken, 3600000);
+  if(loggedIn === "true") {
+    setTimeout(refreshToken, 3600000)
   }
 
   function handleLogout() {
-    window.localStorage.setItem("access_token", "")
-    window.localStorage.setItem("refresh_token", "")
-    fetch("/logout", {method: "DELETE"})
-    setLoggedIn(false)
-    setCurrentUser()
-    window.location.href = '/';
+    window.localStorage.removeItem("access_token");
+    window.localStorage.removeItem("refresh_token");
+    fetch("/logout", { method: "DELETE" })
+      .then(() => {
+        setLoggedIn(false);
+        setCurrentUser(null); // Assuming setCurrentUser accepts null for logout
+        window.location.href = '/';
+      })
+      .catch(error => {
+        // Handle any fetch errors here
+      });
   }
+  
 
   async function getUserData() {
     try {
